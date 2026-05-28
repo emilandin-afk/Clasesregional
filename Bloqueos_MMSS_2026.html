@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloqueos de Miembro Superior</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-dark: #0a0e17;
+  --bg-card: #111827;
+  --bg-card-alt: #1a2235;
+  --accent-cyan: #00d4ff;
+  --accent-pink: #ff3c78;
+  --accent-yellow: #ffd60a;
+  --accent-green: #34d399;
+  --accent-purple: #a78bfa;
+  --accent-orange: #fb923c;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-dim: #64748b;
+  --border: rgba(255,255,255,0.08);
+  --glow-cyan: 0 0 40px rgba(0,212,255,0.15);
+  --glow-pink: 0 0 40px rgba(255,60,120,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+/* ===== NAVIGATION ===== */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(10,14,23,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+  color: var(--accent-cyan);
+}
+.nav-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.nav-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+.nav-dot.active {
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan);
+  transform: scale(1.3);
+}
+.nav-dot:hover { background: var(--accent-cyan); }
+.nav-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* ===== SLIDES ===== */
+.slide {
+  min-height: 100vh;
+  padding: 80px 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== SLIDE 0: COVER ===== */
+.slide-cover {
+  background: radial-gradient(ellipse at 30% 50%, rgba(0,212,255,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 80%, rgba(255,60,120,0.06) 0%, transparent 50%),
+              var(--bg-dark);
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+.cover-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--accent-cyan);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.3s forwards;
+}
+.cover-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3.5rem, 8vw, 7rem);
+  line-height: 0.95;
+  letter-spacing: 4px;
+  margin-bottom: 0.5rem;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.5s forwards;
+}
+.cover-title .highlight { color: var(--accent-cyan); }
+.cover-subtitle {
+  font-size: 1.3rem;
+  color: var(--text-secondary);
+  font-weight: 300;
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.7s forwards;
+}
+.cover-meta {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.9s forwards;
+}
+.cover-meta-item {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.cover-line {
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink));
+  margin: 1.5rem auto;
+  border-radius: 2px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.6s forwards;
+}
+
+/* ===== SECTION HEADERS ===== */
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--accent-cyan);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  letter-spacing: 3px;
+  margin-bottom: 1.5rem;
+  line-height: 1;
+}
+.section-title .accent-cyan { color: var(--accent-cyan); }
+.section-title .accent-pink { color: var(--accent-pink); }
+.section-title .accent-yellow { color: var(--accent-yellow); }
+.section-title .accent-green { color: var(--accent-green); }
+
+/* ===== CONTENT LAYOUTS ===== */
+.content-max {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.grid-5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s;
+}
+.card:hover {
+  border-color: rgba(0,212,255,0.3);
+  box-shadow: var(--glow-cyan);
+  transform: translateY(-2px);
+}
+.card-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+  margin-bottom: 0.75rem;
+  color: var(--accent-cyan);
+}
+.card-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ===== TAGS ===== */
+.tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-right: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+.tag-cyan { background: rgba(0,212,255,0.15); color: var(--accent-cyan); }
+.tag-pink { background: rgba(255,60,120,0.15); color: var(--accent-pink); }
+.tag-yellow { background: rgba(255,214,10,0.15); color: var(--accent-yellow); }
+.tag-green { background: rgba(52,211,153,0.15); color: var(--accent-green); }
+.tag-purple { background: rgba(167,139,250,0.15); color: var(--accent-purple); }
+.tag-orange { background: rgba(251,146,60,0.15); color: var(--accent-orange); }
+
+/* ===== NUMBERED LIST ===== */
+.numbered-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+.numbered-item .num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--accent-cyan);
+  line-height: 1;
+  min-width: 30px;
+}
+.numbered-item .text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  padding-top: 4px;
+}
+.numbered-item .text strong { color: var(--text-primary); }
+
+/* ===== THE 5-3-6-3-5 COMPONENT ===== */
+.mnemonic-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 2rem 0;
+}
+.mnemonic-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 4rem;
+  line-height: 1;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  cursor: default;
+  transition: all 0.3s;
+  position: relative;
+}
+.mnemonic-num:hover { transform: scale(1.1); }
+.mnemonic-num .sublabel {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-dim);
+}
+.mn-5a { background: linear-gradient(135deg, #0f4c75, #1b6ca8); color: #7dd3fc; }
+.mn-3a { background: linear-gradient(135deg, #4c1d95, #6d28d9); color: #c4b5fd; }
+.mn-6  { background: linear-gradient(135deg, #831843, #be185d); color: #f9a8d4; }
+.mn-3b { background: linear-gradient(135deg, #065f46, #059669); color: #6ee7b7; }
+.mn-5b { background: linear-gradient(135deg, #78350f, #b45309); color: #fcd34d; }
+.mnemonic-dash {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  color: var(--text-dim);
+}
+
+/* ===== HOURGLASS SVG ===== */
+.hourglass-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+/* ===== PLEXUS DIAGRAM ===== */
+.plexus-diagram {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ===== BLOCK COMPARISON TABLE ===== */
+.block-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.block-table th {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 2px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+.block-table td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+.block-table tr:hover td { background: rgba(0,212,255,0.03); }
+.block-table .surgery-col { color: var(--text-primary); font-weight: 500; }
+
+/* ===== COMPLICATION BARS ===== */
+.comp-bar-wrap {
+  margin-bottom: 1rem;
+}
+.comp-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-bottom: 0.3rem;
+}
+.comp-bar-label span:first-child { color: var(--text-primary); }
+.comp-bar-label span:last-child { font-family: 'JetBrains Mono', monospace; color: var(--accent-pink); }
+.comp-bar-track {
+  height: 6px;
+  background: var(--bg-card-alt);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.comp-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease-out;
+}
+
+/* ===== NERVE INNERVATION SHOULDER ===== */
+.shoulder-nerve {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--bg-card);
+  border-radius: 8px;
+  border-left: 3px solid;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s;
+}
+.shoulder-nerve:hover { transform: translateX(4px); }
+.shoulder-nerve .sn-icon {
+  font-size: 1.5rem;
+  min-width: 30px;
+  text-align: center;
+}
+.shoulder-nerve .sn-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+.shoulder-nerve .sn-area {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* ===== DISTAL BLOCKS HAND SVG ===== */
+.hand-diagram {
+  max-width: 350px;
+  margin: 0 auto;
+}
+
+/* ===== BIBLIOGRAPHY ===== */
+.bib-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.3s;
+}
+.bib-item:hover { background: rgba(0,212,255,0.03); }
+.bib-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--accent-cyan);
+  min-width: 30px;
+}
+.bib-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.bib-text strong { color: var(--text-primary); }
+.bib-text em { color: var(--accent-cyan); font-style: normal; }
+
+/* ===== FOOTER SLIDE ===== */
+.slide-end {
+  background: radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.05) 0%, transparent 60%),
+              var(--bg-dark);
+  text-align: center;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.animate-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .grid-5 { grid-template-columns: repeat(3, 1fr); }
+  .mnemonic-num { width: 55px; height: 55px; font-size: 2.5rem; }
+  .slide { padding: 70px 1rem 2rem; }
+}
+@media (max-width: 600px) {
+  .grid-5 { grid-template-columns: repeat(5, 1fr); }
+  .mnemonic-num { width: 45px; height: 45px; font-size: 2rem; }
+}
+
+/* ===== BLOCK LEVEL INDICATOR ===== */
+.level-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+.level-line {
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--accent-cyan), var(--accent-pink));
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.level-node {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid;
+  background: var(--bg-dark);
+  position: relative;
+  z-index: 2;
+}
+
+/* ===== WARNING BOX ===== */
+.warning-box {
+  background: rgba(255,60,120,0.08);
+  border: 1px solid rgba(255,60,120,0.2);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-top: 1rem;
+}
+.warning-box .wb-title {
+  font-family: 'Bebas Neue', sans-serif;
+  color: var(--accent-pink);
+  font-size: 1rem;
+  letter-spacing: 1px;
+  margin-bottom: 0.3rem;
+}
+.warning-box .wb-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ===== ADVANTAGE BOX ===== */
+.advantage-box {
+  background: rgba(52,211,153,0.08);
+  border: 1px solid rgba(52,211,153,0.2);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-top: 1rem;
+}
+.advantage-box .ab-title {
+  font-family: 'Bebas Neue', sans-serif;
+  color: var(--accent-green);
+  font-size: 1rem;
+  letter-spacing: 1px;
+  margin-bottom: 0.3rem;
+}
+.advantage-box .ab-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ===== KEYBOARD NAV HINT ===== */
+.key-hint {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  z-index: 100;
+}
+.key-btn {
+  width: 36px; height: 36px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.key-btn:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+/* Progress bar */
+.progress-bar {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink));
+  z-index: 101;
+  transition: width 0.3s;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-title">BLOQUEOS MMSS</div>
+  <div class="nav-dots" id="navDots"></div>
+  <div class="nav-counter" id="navCounter">01 / 14</div>
+</nav>
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- SLIDE 0: COVER -->
+<section class="slide slide-cover" id="slide-0">
+  <div class="cover-badge">Residentes de Anestesiología · 1° y 2° año</div>
+  <h1 class="cover-title">
+    BLOQUEOS DE<br><span class="highlight">MIEMBRO SUPERIOR</span>
+  </h1>
+  <div class="cover-line"></div>
+  <p class="cover-subtitle">De la anatomía a la práctica clínica</p>
+  <div class="cover-meta">
+    <span class="cover-meta-item">ACTUALIZADO 2026</span>
+    <span class="cover-meta-item">GUÍA ECOGRÁFICA</span>
+    <span class="cover-meta-item">BASADO EN EVIDENCIA</span>
+  </div>
+  <div style="margin-top:2.5rem;opacity:0;animation:fadeUp 0.8s 1.1s forwards;">
+    <p style="font-family:'DM Sans',sans-serif;font-size:1rem;color:var(--text-primary);font-weight:500;letter-spacing:0.5px;">Dr. Emiliano Landín</p>
+    <p style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-top:0.25rem;">Anestesiólogo · Hospital Maciel</p>
+  </div>
+</section>
+
+<!-- SLIDE 1: OBJETIVOS -->
+<section class="slide" id="slide-1" style="background: radial-gradient(ellipse at 80% 20%, rgba(167,139,250,0.06) 0%, transparent 50%), var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">INTRODUCCIÓN</div>
+    <div class="section-title">OBJETIVOS DE LA <span class="accent-cyan">CLASE</span></div>
+    <div class="grid-2">
+      <div>
+        <div class="numbered-item">
+          <div class="num">1</div>
+          <div class="text"><strong>Anatomía funcional</strong> del plexo braquial y la regla nemotécnica 5-3-6-3-5</div>
+        </div>
+        <div class="numbered-item">
+          <div class="num">2</div>
+          <div class="text"><strong>Indicaciones</strong> de cada abordaje según el sitio quirúrgico</div>
+        </div>
+        <div class="numbered-item">
+          <div class="num">3</div>
+          <div class="text"><strong>Sonoanatomía</strong> clave para guía ecográfica de cada bloqueo</div>
+        </div>
+        <div class="numbered-item">
+          <div class="num">4</div>
+          <div class="text"><strong>Complicaciones</strong> y estrategias de ahorro diafragmático (diaphragm-sparing)</div>
+        </div>
+        <div class="numbered-item">
+          <div class="num">5</div>
+          <div class="text"><strong>Evidencia actualizada</strong> 2024-2025 integrada a la práctica clínica</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 300 300" width="280" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="gObj" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#ff3c78" stop-opacity="0.1"/>
+            </linearGradient>
+          </defs>
+          <circle cx="150" cy="150" r="140" fill="none" stroke="url(#gObj)" stroke-width="1"/>
+          <circle cx="150" cy="150" r="110" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <!-- Icons for each objective -->
+          <text x="150" y="50" text-anchor="middle" fill="#00d4ff" font-size="24">🧠</text>
+          <text x="260" y="120" text-anchor="middle" fill="#a78bfa" font-size="24">🎯</text>
+          <text x="230" y="230" text-anchor="middle" fill="#34d399" font-size="24">📡</text>
+          <text x="70" y="230" text-anchor="middle" fill="#ff3c78" font-size="24">⚠️</text>
+          <text x="40" y="120" text-anchor="middle" fill="#ffd60a" font-size="24">📚</text>
+          <!-- connecting lines -->
+          <path d="M150,65 L245,115 L220,220 L80,220 L55,115 Z" fill="none" stroke="rgba(0,212,255,0.15)" stroke-width="1" stroke-dasharray="4 4"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 2: ANATOMÍA - REGLA 5-3-6-3-5 -->
+<section class="slide" id="slide-2" style="background: radial-gradient(ellipse at 20% 80%, rgba(0,212,255,0.06) 0%, transparent 50%), var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">ANATOMÍA</div>
+    <div class="section-title">PLEXO BRAQUIAL: <span class="accent-cyan">5</span>-<span class="accent-purple">3</span>-<span class="accent-pink">6</span>-<span class="accent-green">3</span>-<span class="accent-yellow">5</span></div>
+
+    <!-- Mnemonic numbers -->
+    <div class="mnemonic-row">
+      <div class="mnemonic-num mn-5a">5<span class="sublabel">Raíces</span></div>
+      <div class="mnemonic-dash">—</div>
+      <div class="mnemonic-num mn-3a">3<span class="sublabel">Troncos</span></div>
+      <div class="mnemonic-dash">—</div>
+      <div class="mnemonic-num mn-6">6<span class="sublabel">Divisiones</span></div>
+      <div class="mnemonic-dash">—</div>
+      <div class="mnemonic-num mn-3b">3<span class="sublabel">Fascículos</span></div>
+      <div class="mnemonic-dash">—</div>
+      <div class="mnemonic-num mn-5b">5<span class="sublabel">Ramas</span></div>
+    </div>
+
+    <!-- Hourglass + Plexus diagram -->
+    <div class="grid-2" style="margin-top:2.5rem;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <p style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:var(--accent-yellow);margin-bottom:1rem;">⏳ RELOJ DE ARENA</p>
+        <svg viewBox="0 0 220 320" width="200" xmlns="http://www.w3.org/2000/svg">
+          <!-- Hourglass shape showing convergence/divergence -->
+          <defs>
+            <linearGradient id="hg1" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#00d4ff"/>
+              <stop offset="50%" stop-color="#ff3c78"/>
+              <stop offset="100%" stop-color="#ffd60a"/>
+            </linearGradient>
+          </defs>
+          <!-- Top: 5 roots spread -->
+          <line x1="30" y1="30" x2="110" y2="145" stroke="#7dd3fc" stroke-width="2.5" opacity="0.7"/>
+          <line x1="60" y1="30" x2="110" y2="145" stroke="#7dd3fc" stroke-width="2.5" opacity="0.7"/>
+          <line x1="110" y1="30" x2="110" y2="145" stroke="#7dd3fc" stroke-width="2.5" opacity="0.7"/>
+          <line x1="160" y1="30" x2="110" y2="145" stroke="#7dd3fc" stroke-width="2.5" opacity="0.7"/>
+          <line x1="190" y1="30" x2="110" y2="145" stroke="#7dd3fc" stroke-width="2.5" opacity="0.7"/>
+          <!-- Root labels -->
+          <text x="30" y="22" fill="#7dd3fc" font-family="Bebas Neue" font-size="16" text-anchor="middle">C5</text>
+          <text x="60" y="22" fill="#7dd3fc" font-family="Bebas Neue" font-size="16" text-anchor="middle">C6</text>
+          <text x="110" y="22" fill="#7dd3fc" font-family="Bebas Neue" font-size="16" text-anchor="middle">C7</text>
+          <text x="160" y="22" fill="#7dd3fc" font-family="Bebas Neue" font-size="16" text-anchor="middle">C8</text>
+          <text x="190" y="22" fill="#7dd3fc" font-family="Bebas Neue" font-size="16" text-anchor="middle">T1</text>
+          <!-- 5 RAÍCES label -->
+          <rect x="2" y="26" width="50" height="14" rx="2" fill="rgba(0,212,255,0.15)"/>
+          <text x="27" y="36" fill="#00d4ff" font-family="JetBrains Mono" font-size="7" text-anchor="middle" letter-spacing="1">5 RAÍCES</text>
+          <!-- 3 Trunks zone -->
+          <ellipse cx="110" cy="70" rx="85" ry="12" fill="none" stroke="rgba(167,139,250,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="210" y="74" fill="#c4b5fd" font-family="JetBrains Mono" font-size="7" letter-spacing="1">3 TRONCOS</text>
+          <!-- Narrow middle: 6 divisions -->
+          <ellipse cx="110" cy="120" rx="40" ry="8" fill="none" stroke="rgba(255,60,120,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="210" y="124" fill="#f9a8d4" font-family="JetBrains Mono" font-size="7" letter-spacing="1">6 DIVISIONES</text>
+          <!-- Center dot - narrowest point -->
+          <circle cx="110" cy="145" r="5" fill="#ff3c78" opacity="0.6"/>
+          <!-- Bottom: 3 cords diverging then 5 branches -->
+          <line x1="110" y1="155" x2="60" y2="220" stroke="#6ee7b7" stroke-width="2.5" opacity="0.7"/>
+          <line x1="110" y1="155" x2="110" y2="220" stroke="#6ee7b7" stroke-width="2.5" opacity="0.7"/>
+          <line x1="110" y1="155" x2="160" y2="220" stroke="#6ee7b7" stroke-width="2.5" opacity="0.7"/>
+          <!-- 3 Fascículos -->
+          <ellipse cx="110" cy="200" rx="60" ry="10" fill="none" stroke="rgba(52,211,153,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="210" y="204" fill="#6ee7b7" font-family="JetBrains Mono" font-size="7" letter-spacing="1">3 FASCÍCULOS</text>
+          <!-- 5 Terminal branches -->
+          <line x1="60" y1="220" x2="25" y2="290" stroke="#fcd34d" stroke-width="2" opacity="0.7"/>
+          <line x1="60" y1="220" x2="60" y2="290" stroke="#fcd34d" stroke-width="2" opacity="0.7"/>
+          <line x1="110" y1="220" x2="110" y2="290" stroke="#fcd34d" stroke-width="2" opacity="0.7"/>
+          <line x1="160" y1="220" x2="160" y2="290" stroke="#fcd34d" stroke-width="2" opacity="0.7"/>
+          <line x1="160" y1="220" x2="195" y2="290" stroke="#fcd34d" stroke-width="2" opacity="0.7"/>
+          <!-- Branch labels -->
+          <text x="25" y="305" fill="#fcd34d" font-family="JetBrains Mono" font-size="7" text-anchor="middle">MCut</text>
+          <text x="60" y="305" fill="#fcd34d" font-family="JetBrains Mono" font-size="7" text-anchor="middle">Axilar</text>
+          <text x="110" y="305" fill="#fcd34d" font-family="JetBrains Mono" font-size="7" text-anchor="middle">Radial</text>
+          <text x="160" y="305" fill="#fcd34d" font-family="JetBrains Mono" font-size="7" text-anchor="middle">Mediano</text>
+          <text x="195" y="305" fill="#fcd34d" font-family="JetBrains Mono" font-size="7" text-anchor="middle">Cubital</text>
+          <rect x="150" y="284" width="55" height="14" rx="2" fill="rgba(255,214,10,0.15)"/>
+          <text x="177" y="294" fill="#ffd60a" font-family="JetBrains Mono" font-size="7" text-anchor="middle" letter-spacing="1">5 RAMAS</text>
+        </svg>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:1rem;border-left:3px solid var(--accent-cyan);">
+          <div class="card-title" style="color:var(--accent-cyan);">TRONCOS</div>
+          <div class="card-text">
+            <strong style="color:#7dd3fc;">Superior</strong> (C5-C6) · <strong style="color:#c4b5fd;">Medio</strong> (C7) · <strong style="color:#f9a8d4;">Inferior</strong> (C8-T1)
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:1rem;border-left:3px solid var(--accent-green);">
+          <div class="card-title" style="color:var(--accent-green);">FASCÍCULOS</div>
+          <div class="card-text">
+            <strong style="color:#6ee7b7;">Lateral</strong> (div. anterior tronco sup. + medio)<br>
+            <strong style="color:#6ee7b7;">Posterior</strong> (todas las div. posteriores)<br>
+            <strong style="color:#6ee7b7;">Medial</strong> (div. anterior tronco inferior)
+          </div>
+        </div>
+        <div class="card" style="border-left:3px solid var(--accent-yellow);">
+          <div class="card-title" style="color:var(--accent-yellow);">RAMAS TERMINALES</div>
+          <div class="card-text">
+            Musculocutáneo (C5-C7) · Axilar (C5-C6)<br>
+            Radial (C5-T1) · Mediano (C5-T1) · Cubital (C8-T1)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3: PLEXUS DIAGRAM - COMPREHENSIVE -->
+<section class="slide" id="slide-3" style="background: var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">ANATOMÍA</div>
+    <div class="section-title">ESQUEMA DEL <span class="accent-cyan">PLEXO BRAQUIAL</span></div>
+    <div class="plexus-diagram">
+      <svg viewBox="0 0 900 500" width="100%" xmlns="http://www.w3.org/2000/svg">
+        <!-- Column headers -->
+        <text x="80" y="30" fill="#00d4ff" font-family="Bebas Neue" font-size="16" text-anchor="middle" letter-spacing="2">RAÍCES</text>
+        <text x="230" y="30" fill="#a78bfa" font-family="Bebas Neue" font-size="16" text-anchor="middle" letter-spacing="2">TRONCOS</text>
+        <text x="390" y="30" fill="#ff3c78" font-family="Bebas Neue" font-size="16" text-anchor="middle" letter-spacing="2">DIVISIONES</text>
+        <text x="550" y="30" fill="#34d399" font-family="Bebas Neue" font-size="16" text-anchor="middle" letter-spacing="2">FASCÍCULOS</text>
+        <text x="750" y="30" fill="#ffd60a" font-family="Bebas Neue" font-size="16" text-anchor="middle" letter-spacing="2">RAMAS</text>
+        <!-- Vertical dividers -->
+        <line x1="155" y1="40" x2="155" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="310" y1="40" x2="310" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="470" y1="40" x2="470" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="630" y1="40" x2="630" y2="470" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+
+        <!-- ROOTS -->
+        <circle cx="80" cy="80" r="18" fill="rgba(0,212,255,0.15)" stroke="#00d4ff" stroke-width="1.5"/>
+        <text x="80" y="86" fill="#00d4ff" font-family="Bebas Neue" font-size="18" text-anchor="middle">C5</text>
+        <circle cx="80" cy="150" r="18" fill="rgba(0,212,255,0.15)" stroke="#00d4ff" stroke-width="1.5"/>
+        <text x="80" y="156" fill="#00d4ff" font-family="Bebas Neue" font-size="18" text-anchor="middle">C6</text>
+        <circle cx="80" cy="240" r="18" fill="rgba(0,212,255,0.15)" stroke="#00d4ff" stroke-width="1.5"/>
+        <text x="80" y="246" fill="#00d4ff" font-family="Bebas Neue" font-size="18" text-anchor="middle">C7</text>
+        <circle cx="80" cy="330" r="18" fill="rgba(0,212,255,0.15)" stroke="#00d4ff" stroke-width="1.5"/>
+        <text x="80" y="336" fill="#00d4ff" font-family="Bebas Neue" font-size="18" text-anchor="middle">C8</text>
+        <circle cx="80" cy="410" r="18" fill="rgba(0,212,255,0.15)" stroke="#00d4ff" stroke-width="1.5"/>
+        <text x="80" y="416" fill="#00d4ff" font-family="Bebas Neue" font-size="18" text-anchor="middle">T1</text>
+
+        <!-- TRUNKS -->
+        <rect x="195" y="100" width="70" height="30" rx="6" fill="rgba(167,139,250,0.15)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="230" y="120" fill="#c4b5fd" font-family="DM Sans" font-size="11" text-anchor="middle" font-weight="700">Superior</text>
+        <rect x="195" y="225" width="70" height="30" rx="6" fill="rgba(167,139,250,0.15)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="230" y="245" fill="#c4b5fd" font-family="DM Sans" font-size="11" text-anchor="middle" font-weight="700">Medio</text>
+        <rect x="195" y="355" width="70" height="30" rx="6" fill="rgba(167,139,250,0.15)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="230" y="375" fill="#c4b5fd" font-family="DM Sans" font-size="11" text-anchor="middle" font-weight="700">Inferior</text>
+
+        <!-- Root to trunk connections -->
+        <path d="M98,80 C140,80 170,115 195,115" fill="none" stroke="#7dd3fc" stroke-width="2" opacity="0.6"/>
+        <path d="M98,150 C140,150 170,115 195,115" fill="none" stroke="#7dd3fc" stroke-width="2" opacity="0.6"/>
+        <path d="M98,240 L195,240" fill="none" stroke="#7dd3fc" stroke-width="2" opacity="0.6"/>
+        <path d="M98,330 C140,330 170,370 195,370" fill="none" stroke="#7dd3fc" stroke-width="2" opacity="0.6"/>
+        <path d="M98,410 C140,410 170,370 195,370" fill="none" stroke="#7dd3fc" stroke-width="2" opacity="0.6"/>
+
+        <!-- DIVISIONS (anterior/posterior from each trunk) -->
+        <!-- Superior trunk -->
+        <path d="M265,108 C300,108 330,100 370,100" fill="none" stroke="#f9a8d4" stroke-width="1.5" opacity="0.6"/>
+        <path d="M265,122 C300,122 330,130 370,130" fill="none" stroke="#ff3c78" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
+        <text x="375" y="98" fill="#f9a8d4" font-family="JetBrains Mono" font-size="8" opacity="0.8">Ant</text>
+        <text x="375" y="136" fill="#ff3c78" font-family="JetBrains Mono" font-size="8" opacity="0.8">Post</text>
+        <!-- Middle trunk -->
+        <path d="M265,233 C300,233 330,220 370,220" fill="none" stroke="#f9a8d4" stroke-width="1.5" opacity="0.6"/>
+        <path d="M265,247 C300,247 330,255 370,255" fill="none" stroke="#ff3c78" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
+        <text x="375" y="218" fill="#f9a8d4" font-family="JetBrains Mono" font-size="8" opacity="0.8">Ant</text>
+        <text x="375" y="261" fill="#ff3c78" font-family="JetBrains Mono" font-size="8" opacity="0.8">Post</text>
+        <!-- Inferior trunk -->
+        <path d="M265,363 C300,363 330,350 370,350" fill="none" stroke="#f9a8d4" stroke-width="1.5" opacity="0.6"/>
+        <path d="M265,377 C300,377 330,385 370,385" fill="none" stroke="#ff3c78" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
+        <text x="375" y="348" fill="#f9a8d4" font-family="JetBrains Mono" font-size="8" opacity="0.8">Ant</text>
+        <text x="375" y="391" fill="#ff3c78" font-family="JetBrains Mono" font-size="8" opacity="0.8">Post</text>
+
+        <!-- CORDS -->
+        <rect x="510" y="90" width="80" height="30" rx="6" fill="rgba(52,211,153,0.15)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="550" y="110" fill="#6ee7b7" font-family="DM Sans" font-size="11" text-anchor="middle" font-weight="700">Lateral</text>
+        <rect x="510" y="230" width="80" height="30" rx="6" fill="rgba(52,211,153,0.15)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="550" y="250" fill="#6ee7b7" font-family="DM Sans" font-size="11" text-anchor="middle" font-weight="700">Posterior</text>
+        <rect x="510" y="360" width="80" height="30" rx="6" fill="rgba(52,211,153,0.15)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="550" y="380" fill="#6ee7b7" font-family="DM Sans" font-size="11" text-anchor="middle" font-weight="700">Medial</text>
+
+        <!-- Division to cord connections -->
+        <path d="M395,100 C440,100 480,105 510,105" fill="none" stroke="#6ee7b7" stroke-width="1.5" opacity="0.5"/>
+        <path d="M395,220 C440,210 480,105 510,105" fill="none" stroke="#6ee7b7" stroke-width="1.5" opacity="0.5"/>
+        <path d="M395,130 C440,160 480,245 510,245" fill="none" stroke="#6ee7b7" stroke-width="1.5" opacity="0.5"/>
+        <path d="M395,255 C440,255 480,245 510,245" fill="none" stroke="#6ee7b7" stroke-width="1.5" opacity="0.5"/>
+        <path d="M395,385 C440,385 480,245 510,245" fill="none" stroke="#6ee7b7" stroke-width="1.5" opacity="0.5"/>
+        <path d="M395,350 C440,350 480,375 510,375" fill="none" stroke="#6ee7b7" stroke-width="1.5" opacity="0.5"/>
+
+        <!-- TERMINAL BRANCHES -->
+        <!-- From Lateral -->
+        <path d="M590,100 C630,100 660,75 700,75" fill="none" stroke="#fcd34d" stroke-width="2" opacity="0.7"/>
+        <path d="M590,110 C630,120 660,145 700,145" fill="none" stroke="#fcd34d" stroke-width="2" opacity="0.7"/>
+        <!-- From Posterior -->
+        <path d="M590,238 C630,225 660,195 700,195" fill="none" stroke="#fcd34d" stroke-width="2" opacity="0.7"/>
+        <path d="M590,252 C630,265 660,265 700,265" fill="none" stroke="#fcd34d" stroke-width="2" opacity="0.7"/>
+        <!-- From Medial (cubital + contribución a mediano) -->
+        <path d="M590,370 C630,370 660,350 700,350" fill="none" stroke="#fcd34d" stroke-width="2" opacity="0.7"/>
+        <path d="M590,380 C630,400 660,430 700,430" fill="none" stroke="#fcd34d" stroke-width="2" opacity="0.7"/>
+        <!-- Mediano receives from lateral AND medial -->
+        <path d="M700,145 C720,160 720,330 700,350" fill="none" stroke="rgba(252,211,77,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+
+        <!-- Branch labels -->
+        <rect x="700" y="62" width="160" height="26" rx="5" fill="rgba(255,214,10,0.1)" stroke="rgba(255,214,10,0.3)" stroke-width="1"/>
+        <text x="780" y="80" fill="#fcd34d" font-family="DM Sans" font-size="11" text-anchor="middle" font-weight="700">Musculocutáneo (C5-C7)</text>
+        
+        <rect x="700" y="132" width="140" height="26" rx="5" fill="rgba(255,214,10,0.1)" stroke="rgba(255,214,10,0.3)" stroke-width="1"/>
+        <text x="770" y="150" fill="#fcd34d" font-family="DM Sans" font-size="11" text-anchor="middle" font-weight="700">Mediano (C5-T1)*</text>
+        
+        <rect x="700" y="182" width="120" height="26" rx="5" fill="rgba(255,214,10,0.1)" stroke="rgba(255,214,10,0.3)" stroke-width="1"/>
+        <text x="760" y="200" fill="#fcd34d" font-family="DM Sans" font-size="11" text-anchor="middle" font-weight="700">Axilar (C5-C6)</text>
+        
+        <rect x="700" y="252" width="120" height="26" rx="5" fill="rgba(255,214,10,0.1)" stroke="rgba(255,214,10,0.3)" stroke-width="1"/>
+        <text x="760" y="270" fill="#fcd34d" font-family="DM Sans" font-size="11" text-anchor="middle" font-weight="700">Radial (C5-T1)</text>
+        
+        <rect x="700" y="337" width="155" height="26" rx="5" fill="rgba(255,214,10,0.1)" stroke="rgba(255,214,10,0.3)" stroke-width="1"/>
+        <text x="777" y="355" fill="#fcd34d" font-family="DM Sans" font-size="11" text-anchor="middle" font-weight="700">Mediano (C5-T1)* medial</text>
+        
+        <rect x="700" y="417" width="130" height="26" rx="5" fill="rgba(255,214,10,0.1)" stroke="rgba(255,214,10,0.3)" stroke-width="1"/>
+        <text x="765" y="435" fill="#fcd34d" font-family="DM Sans" font-size="11" text-anchor="middle" font-weight="700">Cubital (C8-T1)</text>
+
+        <!-- Important note -->
+        <text x="710" y="465" fill="rgba(252,211,77,0.5)" font-family="JetBrains Mono" font-size="8">* Mediano = raíz lat + raíz med</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 4: DERMATOMAS -->
+<section class="slide" id="slide-4" style="background: radial-gradient(ellipse at 70% 30%, rgba(52,211,153,0.06) 0%, transparent 50%), var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">ANATOMÍA FUNCIONAL</div>
+    <div class="section-title">DERMATOMAS E <span class="accent-green">INERVACIÓN MOTORA</span></div>
+    <div class="grid-2">
+      <div>
+        <p style="color:var(--text-secondary);font-size:0.95rem;line-height:1.6;margin-bottom:1.5rem;">La correlación entre raíces nerviosas y función motora permite evaluar la completitud de un bloqueo en la práctica clínica.</p>
+        <div class="card" style="margin-bottom:0.75rem;border-left:3px solid #7dd3fc;padding:1rem;">
+          <span class="tag tag-cyan">C5</span> <span style="color:var(--text-primary);font-weight:500;">Abducción del hombro</span> <span style="color:var(--text-dim);font-size:0.8rem;">— deltoides</span>
+        </div>
+        <div class="card" style="margin-bottom:0.75rem;border-left:3px solid #7dd3fc;padding:1rem;">
+          <span class="tag tag-cyan">C5-C6</span> <span style="color:var(--text-primary);font-weight:500;">Flexión del codo</span> <span style="color:var(--text-dim);font-size:0.8rem;">— bíceps</span>
+        </div>
+        <div class="card" style="margin-bottom:0.75rem;border-left:3px solid #a78bfa;padding:1rem;border-left-color:#a78bfa;">
+          <span class="tag tag-purple">C6-C7</span> <span style="color:var(--text-primary);font-weight:500;">Extensión de muñeca</span> <span style="color:var(--text-dim);font-size:0.8rem;">— extensor radial</span>
+        </div>
+        <div class="card" style="margin-bottom:0.75rem;border-left:3px solid #a78bfa;padding:1rem;border-left-color:#a78bfa;">
+          <span class="tag tag-purple">C7</span> <span style="color:var(--text-primary);font-weight:500;">Extensión del codo</span> <span style="color:var(--text-dim);font-size:0.8rem;">— tríceps</span>
+        </div>
+        <div class="card" style="margin-bottom:0.75rem;border-left:3px solid #ff3c78;padding:1rem;">
+          <span class="tag tag-pink">C8-T1</span> <span style="color:var(--text-primary);font-weight:500;">Flexión de dedos / pinza</span> <span style="color:var(--text-dim);font-size:0.8rem;">— interóseos, lumbricales</span>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="text-align:center;padding:2rem;">
+          <p style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:var(--accent-cyan);margin-bottom:1rem;">NERVIOS TERMINALES</p>
+          <svg viewBox="0 0 300 340" width="260" xmlns="http://www.w3.org/2000/svg">
+            <!-- Simplified arm outline -->
+            <path d="M120,20 C130,20 160,30 170,60 L180,120 L185,180 L182,220 L200,280 L210,310 M140,310 L160,280 L165,220 L162,180 L158,120 L155,60 C150,30 130,20 120,20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+            <!-- Nerve territory colors -->
+            <!-- Axilar - shoulder -->
+            <ellipse cx="140" cy="50" rx="25" ry="15" fill="rgba(0,212,255,0.2)" stroke="#00d4ff" stroke-width="1"/>
+            <text x="140" y="54" fill="#00d4ff" font-size="8" text-anchor="middle" font-family="JetBrains Mono">AXILAR</text>
+            <!-- Musculocutáneo - lateral forearm -->
+            <rect x="108" y="140" width="40" height="60" rx="8" fill="rgba(255,214,10,0.15)" stroke="#ffd60a" stroke-width="1"/>
+            <text x="128" y="175" fill="#ffd60a" font-size="7" text-anchor="middle" font-family="JetBrains Mono">MCut</text>
+            <!-- Radial - posterior -->
+            <rect x="170" y="110" width="35" height="80" rx="8" fill="rgba(52,211,153,0.15)" stroke="#34d399" stroke-width="1"/>
+            <text x="187" y="155" fill="#34d399" font-size="7" text-anchor="middle" font-family="JetBrains Mono">RADIAL</text>
+            <!-- Mediano - palmar -->
+            <rect x="145" y="260" width="30" height="40" rx="6" fill="rgba(167,139,250,0.2)" stroke="#a78bfa" stroke-width="1"/>
+            <text x="160" y="284" fill="#a78bfa" font-size="7" text-anchor="middle" font-family="JetBrains Mono">MED</text>
+            <!-- Cubital - medial hand -->
+            <rect x="180" y="260" width="30" height="40" rx="6" fill="rgba(255,60,120,0.15)" stroke="#ff3c78" stroke-width="1"/>
+            <text x="195" y="284" fill="#ff3c78" font-size="7" text-anchor="middle" font-family="JetBrains Mono">CUB</text>
+            <!-- Legend -->
+            <rect x="10" y="260" width="90" height="75" rx="6" fill="rgba(17,24,39,0.9)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <circle cx="25" cy="278" r="4" fill="#00d4ff"/><text x="35" y="281" fill="#94a3b8" font-size="7" font-family="DM Sans">Axilar C5-C6</text>
+            <circle cx="25" cy="295" r="4" fill="#ffd60a"/><text x="35" y="298" fill="#94a3b8" font-size="7" font-family="DM Sans">MCut C5-C7</text>
+            <circle cx="25" cy="312" r="4" fill="#34d399"/><text x="35" y="315" fill="#94a3b8" font-size="7" font-family="DM Sans">Radial C5-T1</text>
+            <circle cx="25" cy="329" r="4" fill="#a78bfa"/><text x="35" y="332" fill="#94a3b8" font-size="7" font-family="DM Sans">Mediano C5-T1</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 5: INTERESCALÉNICO -->
+<section class="slide" id="slide-5" style="background: radial-gradient(ellipse at 30% 70%, rgba(255,60,120,0.06) 0%, transparent 50%), var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">BLOQUEO 01</div>
+    <div class="section-title">BLOQUEO <span class="accent-pink">INTERESCALÉNICO</span></div>
+    <div class="grid-2">
+      <div>
+        <p style="color:var(--text-secondary);line-height:1.6;margin-bottom:1.5rem;">Bloqueo del plexo braquial a nivel de las raíces C5-C6-C7, entre los músculos escaleno anterior y medio. Gold standard para analgesia de hombro.</p>
+        <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-cyan);letter-spacing:2px;margin-bottom:0.75rem;">INDICACIONES</p>
+        <div style="margin-bottom:1.5rem;">
+          <span class="tag tag-cyan">Cirugía de hombro</span>
+          <span class="tag tag-cyan">Brazo proximal</span>
+          <span class="tag tag-cyan">Clavícula</span>
+        </div>
+        <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-cyan);letter-spacing:2px;margin-bottom:0.75rem;">SONOANATOMÍA</p>
+        <div class="card-text" style="margin-bottom:1.5rem;">
+          Transductor lineal a nivel del cricoides. Identificar ECM → escaleno anterior → raíces nerviosas (hipoecoicas) → escaleno medio. Arteria vertebral como referencia profunda.
+        </div>
+        <div class="warning-box">
+          <div class="wb-title">⚠ COMPLICACIONES</div>
+          <div class="wb-text">
+            <strong>Bloqueo frénico:</strong> hasta 100% — contraindicado en parálisis diafragmática contralateral<br>
+            <strong>Síndrome de Horner</strong> · Inyección neuroaxial · Lesión de arteria vertebral
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="text-align:center;padding:1.5rem;">
+          <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-pink);letter-spacing:2px;font-size:1rem;margin-bottom:1rem;">SONOANATOMÍA - CORTE TRANSVERSAL</p>
+          <svg viewBox="0 0 400 280" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <!-- Ultrasound-like view of interscalene area -->
+            <rect width="400" height="280" rx="12" fill="#1a1a2e"/>
+            <!-- Skin line -->
+            <path d="M0,30 Q100,25 200,28 Q300,31 400,27" fill="none" stroke="#555" stroke-width="2"/>
+            <!-- SCM muscle -->
+            <path d="M20,35 Q80,40 140,38 L130,100 Q70,95 20,100 Z" fill="#3d2626" stroke="#664444" stroke-width="1" opacity="0.8"/>
+            <text x="75" y="72" fill="#aa8888" font-family="Bebas Neue" font-size="16" text-anchor="middle">SCM</text>
+            <!-- Anterior Scalene -->
+            <path d="M140,38 Q200,35 220,40 L215,160 Q180,155 140,160 Z" fill="#2d3326" stroke="#556644" stroke-width="1" opacity="0.8"/>
+            <text x="178" y="105" fill="#88aa66" font-family="Bebas Neue" font-size="13" text-anchor="middle">ASM</text>
+            <!-- Middle Scalene -->
+            <path d="M280,35 Q340,38 390,35 L390,250 Q330,245 280,250 Z" fill="#2d3326" stroke="#556644" stroke-width="1" opacity="0.8"/>
+            <text x="340" y="140" fill="#88aa66" font-family="Bebas Neue" font-size="13" text-anchor="middle">MSM</text>
+            <!-- Nerve roots between scalenes -->
+            <circle cx="240" cy="75" r="12" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.9"/>
+            <text x="240" y="80" fill="#1a1a2e" font-family="Bebas Neue" font-size="12" text-anchor="middle">C5</text>
+            <circle cx="250" cy="115" r="16" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.9"/>
+            <text x="250" y="120" fill="#1a1a2e" font-family="Bebas Neue" font-size="12" text-anchor="middle">C6</text>
+            <circle cx="255" cy="170" r="18" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.9"/>
+            <text x="255" y="176" fill="#1a1a2e" font-family="Bebas Neue" font-size="12" text-anchor="middle">C7</text>
+            <!-- Vertebral artery -->
+            <circle cx="190" cy="210" r="12" fill="#cc3333" stroke="#ff4444" stroke-width="1.5" opacity="0.8"/>
+            <text x="190" y="215" fill="white" font-family="Bebas Neue" font-size="10" text-anchor="middle">VA</text>
+            <!-- Carotid/Jugular -->
+            <circle cx="100" cy="140" r="14" fill="#3344aa" stroke="#5566dd" stroke-width="1.5" opacity="0.7"/>
+            <!-- Transverse process -->
+            <path d="M230,230 Q260,220 280,240 L270,265 Q250,255 230,260 Z" fill="#8B7355" stroke="#a08060" stroke-width="1" opacity="0.5"/>
+            <text x="260" y="260" fill="#aa9977" font-family="JetBrains Mono" font-size="8">C7-TP</text>
+            <!-- Labels -->
+            <text x="100" y="165" fill="#7799cc" font-family="JetBrains Mono" font-size="8" text-anchor="middle">IJV</text>
+            <!-- Target arrow -->
+            <path d="M350,60 L260,80" fill="none" stroke="#00d4ff" stroke-width="1.5" marker-end="url(#arrowCyan)"/>
+            <text x="360" y="55" fill="#00d4ff" font-family="JetBrains Mono" font-size="9">TARGET</text>
+            <defs>
+              <marker id="arrowCyan" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+                <polygon points="0,0 6,2 0,4" fill="#00d4ff"/>
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 6: DIAPHRAGM SPARING -->
+<section class="slide" id="slide-6" style="background: radial-gradient(ellipse at 50% 50%, rgba(255,214,10,0.04) 0%, transparent 50%), var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">EVIDENCIA 2024-2025</div>
+    <div class="section-title">AHORRO <span class="accent-yellow">DIAFRAGMÁTICO</span></div>
+    <p style="color:var(--text-secondary);line-height:1.6;margin-bottom:2rem;max-width:700px;">La parálisis hemidiafragmática (HDP) es la complicación más significativa del interescalénico. Múltiples alternativas han sido evaluadas en ensayos recientes.</p>
+    <div style="max-width:800px;">
+      <div class="comp-bar-wrap">
+        <div class="comp-bar-label"><span>Interescalénico clásico</span><span>~100%</span></div>
+        <div class="comp-bar-track"><div class="comp-bar-fill" style="width:100%;background:linear-gradient(90deg,#ff3c78,#ff6b9d);"></div></div>
+      </div>
+      <div class="comp-bar-wrap">
+        <div class="comp-bar-label"><span>Supraclavicular</span><span>~67%</span></div>
+        <div class="comp-bar-track"><div class="comp-bar-fill" style="width:67%;background:linear-gradient(90deg,#fb923c,#fdba74);"></div></div>
+      </div>
+      <div class="comp-bar-wrap">
+        <div class="comp-bar-label"><span>Interescalénico bajo volumen (5ml)</span><span>~20%</span></div>
+        <div class="comp-bar-track"><div class="comp-bar-fill" style="width:20%;background:linear-gradient(90deg,#ffd60a,#fde68a);"></div></div>
+      </div>
+      <div class="comp-bar-wrap">
+        <div class="comp-bar-label"><span>Tronco superior (&lt;4ml)</span><span>~0%</span></div>
+        <div class="comp-bar-track"><div class="comp-bar-fill" style="width:3%;background:linear-gradient(90deg,#34d399,#6ee7b7);"></div></div>
+      </div>
+      <div class="comp-bar-wrap">
+        <div class="comp-bar-label"><span>Tronco superior (&gt;4ml)</span><span>~20%</span></div>
+        <div class="comp-bar-track"><div class="comp-bar-fill" style="width:20%;background:linear-gradient(90deg,#ffd60a,#fde68a);"></div></div>
+      </div>
+      <div class="comp-bar-wrap">
+        <div class="comp-bar-label"><span>Costoclavicular</span><span>0-11%</span></div>
+        <div class="comp-bar-track"><div class="comp-bar-fill" style="width:11%;background:linear-gradient(90deg,#34d399,#6ee7b7);"></div></div>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-top:2rem;">
+      <div class="card" style="border-top:2px solid var(--accent-green);">
+        <div class="card-title" style="color:var(--accent-green);font-size:1.1rem;">✓ COSTOCLAVICULAR</div>
+        <div class="card-text">Analgesia equivalente al ISB. HDP 0% en algunos estudios. Evidencia más sólida como alternativa diaphragm-sparing.</div>
+      </div>
+      <div class="card" style="border-top:2px solid var(--accent-yellow);">
+        <div class="card-title" style="color:var(--accent-yellow);font-size:1.1rem;">~ TRONCO SUPERIOR</div>
+        <div class="card-text">HDP dependiente del volumen. Con menos de 4ml: sin riesgo. Con más de 4ml: hasta 20% HDP.</div>
+      </div>
+      <div class="card" style="border-top:2px solid var(--accent-purple);">
+        <div class="card-title" style="color:var(--accent-purple);font-size:1.1rem;">⟡ OTRAS OPCIONES</div>
+        <div class="card-text">ESP cervical (emergente), Infraclavicular + supraescapular (menos analgesia), Axilar + supraescapular (falta pectoral lateral).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 7: INERVACIÓN DEL HOMBRO -->
+<section class="slide" id="slide-7" style="background: radial-gradient(ellipse at 70% 50%, rgba(167,139,250,0.06) 0%, transparent 50%), var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">HOMBRO</div>
+    <div class="section-title">INERVACIÓN <span class="accent-purple">ARTICULAR</span></div>
+    <div class="grid-2">
+      <div>
+        <p style="color:var(--text-secondary);line-height:1.6;margin-bottom:1.5rem;">Cuatro nervios principales inervan la articulación glenohumeral. Conocerlos permite diseñar estrategias de analgesia selectiva.</p>
+        <div class="shoulder-nerve" style="border-color:#ffd60a;">
+          <div class="sn-icon">1</div>
+          <div><div class="sn-name" style="color:#ffd60a;">N. Supraescapular (SSN)</div><div class="sn-area">Cápsula posterosuperior · Bursa subacromial · Lig. coracoacromial y acromioclavicular</div></div>
+        </div>
+        <div class="shoulder-nerve" style="border-color:#ff3c78;">
+          <div class="sn-icon">2</div>
+          <div><div class="sn-name" style="color:#ff3c78;">N. Pectoral Lateral (LPN)</div><div class="sn-area">Borde anterior de bursa subacromial · Lig. coracoacromial · Cápsula anterosuperior</div></div>
+        </div>
+        <div class="shoulder-nerve" style="border-color:#a78bfa;">
+          <div class="sn-icon">3</div>
+          <div><div class="sn-name" style="color:#a78bfa;">N. Subescapular (USN)</div><div class="sn-area">Aspecto anteromedial de la cápsula glenohumeral</div></div>
+        </div>
+        <div class="shoulder-nerve" style="border-color:#34d399;">
+          <div class="sn-icon">4</div>
+          <div><div class="sn-name" style="color:#34d399;">N. Axilar (AN)</div><div class="sn-area">Cápsula posteroinferior · Anteroinferior · Aspecto lateral</div></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div class="card" style="text-align:center;padding:1.5rem;border:1px solid rgba(167,139,250,0.3);">
+          <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-pink);font-size:1.5rem;letter-spacing:2px;margin-bottom:0.5rem;">CONCEPTO PENG</p>
+          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.5;margin-bottom:1rem;">PEri-capsular Nerve Group del hombro. Análogo al PENG de cadera, busca bloquear los nervios pericapsulares de forma selectiva.</p>
+          <svg viewBox="0 0 250 250" width="220" xmlns="http://www.w3.org/2000/svg">
+            <!-- Glenoid simplified -->
+            <ellipse cx="125" cy="125" rx="50" ry="65" fill="rgba(0,212,255,0.08)" stroke="rgba(0,212,255,0.3)" stroke-width="1.5"/>
+            <text x="125" y="130" fill="rgba(0,212,255,0.4)" font-family="Bebas Neue" font-size="12" text-anchor="middle">GLENOHUMERAL</text>
+            <!-- Nerve positions around capsule -->
+            <circle cx="125" cy="45" r="10" fill="rgba(255,214,10,0.3)" stroke="#ffd60a" stroke-width="1.5"/>
+            <text x="125" y="32" fill="#ffd60a" font-family="JetBrains Mono" font-size="8" text-anchor="middle">SSN</text>
+            <circle cx="195" cy="85" r="10" fill="rgba(255,60,120,0.3)" stroke="#ff3c78" stroke-width="1.5"/>
+            <text x="215" y="80" fill="#ff3c78" font-family="JetBrains Mono" font-size="8">LPN</text>
+            <circle cx="55" cy="105" r="10" fill="rgba(167,139,250,0.3)" stroke="#a78bfa" stroke-width="1.5"/>
+            <text x="30" y="100" fill="#a78bfa" font-family="JetBrains Mono" font-size="8">USN</text>
+            <circle cx="125" cy="205" r="10" fill="rgba(52,211,153,0.3)" stroke="#34d399" stroke-width="1.5"/>
+            <text x="125" y="225" fill="#34d399" font-family="JetBrains Mono" font-size="8" text-anchor="middle">AN</text>
+            <!-- Arrows around -->
+            <path d="M135,45 A60,60 0 0,1 195,80" fill="none" stroke="rgba(255,60,120,0.4)" stroke-width="1.5" marker-end="url(#arrowP)"/>
+            <path d="M190,95 A60,60 0 0,1 135,200" fill="none" stroke="rgba(52,211,153,0.4)" stroke-width="1.5" marker-end="url(#arrowG)"/>
+            <path d="M115,200 A60,60 0 0,1 60,110" fill="none" stroke="rgba(167,139,250,0.4)" stroke-width="1.5" marker-end="url(#arrowPu)"/>
+            <path d="M60,95 A60,60 0 0,1 115,48" fill="none" stroke="rgba(255,214,10,0.4)" stroke-width="1.5" marker-end="url(#arrowY)"/>
+            <defs>
+              <marker id="arrowP" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><polygon points="0,0 6,2 0,4" fill="#ff3c78"/></marker>
+              <marker id="arrowG" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><polygon points="0,0 6,2 0,4" fill="#34d399"/></marker>
+              <marker id="arrowPu" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><polygon points="0,0 6,2 0,4" fill="#a78bfa"/></marker>
+              <marker id="arrowY" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><polygon points="0,0 6,2 0,4" fill="#ffd60a"/></marker>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 7B: BLOQUEO CLAVIPECTORAL -->
+<section class="slide" id="slide-7b" style="background: radial-gradient(ellipse at 40% 40%, rgba(251,146,60,0.06) 0%, transparent 50%), var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">BLOQUEO FASCIAL · CLAVÍCULA</div>
+    <div class="section-title">FASCIA <span class="accent-orange">CLAVIPECTORAL</span></div>
+    <div class="grid-2">
+      <div>
+        <p style="color:var(--text-secondary);line-height:1.6;margin-bottom:1.5rem;">Bloqueo fascial novedoso que deposita anestésico local entre la fascia clavipectoral y la superficie inferior de la clavícula. Bloquea las ramas terminales sensitivas que inervan el periostio clavicular.</p>
+        <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-orange);letter-spacing:2px;margin-bottom:0.5rem;">INDICACIONES</p>
+        <div style="margin-bottom:1.5rem;">
+          <span class="tag tag-orange">Fractura de clavícula</span>
+          <span class="tag tag-orange">Osteosíntesis clavicular</span>
+          <span class="tag tag-orange">Analgesia perioperatoria</span>
+        </div>
+        <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-orange);letter-spacing:2px;margin-bottom:0.5rem;">INERVACIÓN DE LA CLAVÍCULA</p>
+        <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;margin-bottom:1rem;">La inervación clavicular es compleja y controvertida. Participan ramas del plexo cervical superficial (n. supraclavicular) para la piel, y ramas del plexo braquial (n. subclavio, n. supraescapular, n. pectoral lateral, n. torácico largo) para el periostio.</p>
+        <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-orange);letter-spacing:2px;margin-bottom:0.5rem;">TÉCNICA</p>
+        <div class="card-text" style="margin-bottom:1rem;">
+          Combinación recomendada: <strong style="color:var(--text-primary);">Plexo cervical superficial + Bloqueo clavipectoral</strong>. Inyección ecoguiada bajo la clavícula, entre el periostio y la fascia clavipectoral. La clavícula actúa como barrera natural (backstop).
+        </div>
+        <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-orange);letter-spacing:2px;margin-bottom:0.5rem;">VOLUMEN</p>
+        <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1rem;">10-15 ml por debajo de la clavícula + 5-10 ml plexo cervical superficial</p>
+        <div class="advantage-box" style="border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.08);">
+          <div class="ab-title" style="color:var(--accent-orange);">✓ VENTAJAS</div>
+          <div class="ab-text">
+            <strong>Sin riesgo de HDP ni neumotórax.</strong> Inyección superficial y lateral. Alternativa segura al interescalénico para cirugía de clavícula, especialmente en pacientes con compromiso respiratorio.
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1.5rem;align-items:center;justify-content:center;">
+        <div class="card" style="text-align:center;padding:1.5rem;width:100%;">
+          <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-orange);letter-spacing:2px;font-size:1rem;margin-bottom:1rem;">SONOANATOMÍA — CORTE INFRACLAVICULAR</p>
+          <svg viewBox="0 0 420 280" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <rect width="420" height="280" rx="12" fill="#1a1a2e"/>
+            <!-- Skin -->
+            <path d="M0,22 Q210,18 420,22" fill="none" stroke="#555" stroke-width="2"/>
+            <!-- Subcutaneous tissue -->
+            <path d="M0,22 Q210,18 420,22 L420,42 Q210,38 0,42 Z" fill="rgba(200,170,80,0.08)" stroke="none"/>
+            <!-- Clavicle - bone cross section -->
+            <path d="M100,45 Q130,38 210,35 Q290,38 330,45 L325,90 Q280,95 210,98 Q140,95 105,90 Z" fill="#6B5B3E" stroke="#8B7355" stroke-width="2" opacity="0.85"/>
+            <!-- Cortical bone highlight -->
+            <path d="M105,48 Q140,42 210,39 Q280,42 325,48" fill="none" stroke="#a08060" stroke-width="2.5"/>
+            <path d="M108,88 Q145,93 210,95 Q275,93 322,88" fill="none" stroke="#a08060" stroke-width="1.5"/>
+            <!-- Bone label -->
+            <text x="210" y="72" fill="#cca680" font-family="Bebas Neue" font-size="16" text-anchor="middle">CLAVÍCULA</text>
+            <!-- Periosteum thin line -->
+            <path d="M108,92 Q145,97 210,99 Q275,97 322,92" fill="none" stroke="#ffd60a" stroke-width="1" stroke-dasharray="3 2"/>
+            <!-- Clavipectoral fascia -->
+            <path d="M60,110 Q150,105 210,108 Q280,105 380,112 L378,120 Q280,115 210,118 Q150,115 62,120 Z" fill="rgba(251,146,60,0.2)" stroke="#fb923c" stroke-width="1.5"/>
+            <text x="345" y="118" fill="#fb923c" font-family="JetBrains Mono" font-size="8" text-anchor="end">FASCIA CPec</text>
+            <!-- TARGET ZONE between clavicle and fascia -->
+            <path d="M108,92 Q145,97 210,99 Q275,97 322,92 L322,110 Q280,105 210,108 Q150,105 108,110 Z" fill="rgba(0,212,255,0.1)" stroke="none"/>
+            <text x="210" y="105" fill="#00d4ff" font-family="JetBrains Mono" font-size="8" text-anchor="middle" font-weight="bold">★ TARGET</text>
+            <!-- Subclavius muscle (small, under clavicle) -->
+            <path d="M140,95 Q175,100 210,102 Q245,100 270,95 L268,108 Q240,106 210,108 Q180,106 142,108 Z" fill="#3d2d26" stroke="#665544" stroke-width="0.8" opacity="0.5"/>
+            <text x="210" y="88" fill="#aa9977" font-family="JetBrains Mono" font-size="6" text-anchor="middle" opacity="0.7">m. subclavio</text>
+            <!-- Pec major below -->
+            <path d="M20,125 L400,125 L395,200 L25,200 Z" fill="#3d2626" stroke="#664444" stroke-width="1" opacity="0.6"/>
+            <text x="210" y="168" fill="#aa8888" font-family="Bebas Neue" font-size="14" text-anchor="middle">PEC MAJOR</text>
+            <!-- Pec minor below -->
+            <path d="M80,205 L340,205 L335,250" fill="none" stroke="#665544" stroke-width="0.8" opacity="0.4"/>
+            <text x="210" y="230" fill="#998877" font-family="Bebas Neue" font-size="12" text-anchor="middle" opacity="0.5">PEC MINOR</text>
+            <!-- Neurovascular bundle hint deep -->
+            <circle cx="300" cy="245" r="12" fill="#cc3333" stroke="#ff4444" stroke-width="1" opacity="0.4"/>
+            <circle cx="330" cy="248" r="10" fill="#3344aa" stroke="#5566dd" stroke-width="1" opacity="0.3"/>
+            <text x="315" y="270" fill="rgba(255,255,255,0.2)" font-family="JetBrains Mono" font-size="7" text-anchor="middle">vasos axilares</text>
+            <!-- Needle trajectory -->
+            <line x1="380" y1="30" x2="215" y2="100" stroke="#00d4ff" stroke-width="1.8" stroke-dasharray="6 3"/>
+            <circle cx="215" cy="100" r="3" fill="#00d4ff"/>
+            <!-- Needle label -->
+            <text x="390" y="25" fill="#00d4ff" font-family="JetBrains Mono" font-size="8">AGUJA</text>
+            <!-- LA spread -->
+            <ellipse cx="210" cy="103" rx="60" ry="6" fill="rgba(0,212,255,0.15)" stroke="none">
+              <animate attributeName="rx" values="40;65;40" dur="3s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.1;0.25;0.1" dur="3s" repeatCount="indefinite"/>
+            </ellipse>
+            <!-- Periosteum label -->
+            <path d="M328,90 L370,78" fill="none" stroke="#ffd60a" stroke-width="0.8"/>
+            <text x="375" y="78" fill="#ffd60a" font-family="JetBrains Mono" font-size="7">periostio</text>
+            <!-- Safety note -->
+            <rect x="10" y="248" width="160" height="22" rx="4" fill="rgba(52,211,153,0.1)" stroke="rgba(52,211,153,0.3)" stroke-width="0.8"/>
+            <text x="90" y="263" fill="#34d399" font-family="JetBrains Mono" font-size="7" text-anchor="middle">✓ Clavícula = backstop natural</text>
+          </svg>
+        </div>
+        <div class="card" style="width:100%;padding:1rem 1.2rem;">
+          <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-cyan);font-size:1rem;letter-spacing:1px;margin-bottom:0.5rem;">📚 EVIDENCIA</p>
+          <p style="font-size:0.8rem;color:var(--text-secondary);line-height:1.5;">
+            Xu et al. (2023): SCPB + CPB vs SCPB + ISB para cirugía de clavícula — <strong style="color:var(--text-primary);">duración de analgesia significativamente mayor</strong> con la combinación clavipectoral.
+            Ensayos en curso (2025-2026) confirman eficacia comparable al ISB sin HDP.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 8: SUPRACLAVICULAR -->
+<section class="slide" id="slide-8" style="background: radial-gradient(ellipse at 30% 30%, rgba(0,212,255,0.06) 0%, transparent 50%), var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">BLOQUEO 02</div>
+    <div class="section-title">BLOQUEO <span class="accent-cyan">SUPRACLAVICULAR</span></div>
+    <div style="display:inline-block;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:6px;padding:0.4rem 1rem;margin-bottom:1.5rem;">
+      <span style="font-family:'Bebas Neue',sans-serif;color:var(--accent-cyan);letter-spacing:2px;">🩺 "LA RAQUÍDEA DEL BRAZO"</span>
+    </div>
+    <div class="grid-2">
+      <div>
+        <p style="color:var(--text-secondary);line-height:1.6;margin-bottom:1.5rem;">Bloqueo más completo del plexo braquial. Los troncos y divisiones se agrupan como "racimo de uvas" sobre la primera costilla, lateral a la arteria subclavia.</p>
+        <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-cyan);letter-spacing:2px;margin-bottom:0.5rem;">INDICACIONES</p>
+        <div style="margin-bottom:1rem;">
+          <span class="tag tag-cyan">Brazo</span>
+          <span class="tag tag-cyan">Codo</span>
+          <span class="tag tag-cyan">Antebrazo</span>
+          <span class="tag tag-cyan">Muñeca y mano</span>
+          <span class="tag tag-yellow">Hombro*</span>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:1.5rem;">* Alternativa al interescalénico, pero con HDP ~67%</p>
+        <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-cyan);letter-spacing:2px;margin-bottom:0.5rem;">VOLUMEN</p>
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem;">20-25 ml de anestésico local</p>
+        <div class="warning-box">
+          <div class="wb-title">⚠ COMPLICACIONES</div>
+          <div class="wb-text">
+            <strong>Neumotórax</strong> (pleura inmediatamente inferior a la primera costilla)<br>
+            <strong>Bloqueo frénico</strong> (~67%)
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="text-align:center;padding:1.5rem;">
+          <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-cyan);letter-spacing:2px;font-size:1rem;margin-bottom:1rem;">SONOANATOMÍA</p>
+          <svg viewBox="0 0 400 280" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="280" rx="12" fill="#1a1a2e"/>
+            <!-- Skin -->
+            <path d="M0,25 Q200,20 400,25" fill="none" stroke="#555" stroke-width="2"/>
+            <!-- SCM -->
+            <path d="M10,30 L100,30 L90,80 L10,75 Z" fill="#3d2626" stroke="#664444" stroke-width="1" opacity="0.7"/>
+            <text x="50" y="58" fill="#aa8888" font-family="Bebas Neue" font-size="12" text-anchor="middle">SCM</text>
+            <!-- ASM -->
+            <path d="M100,30 L170,32 L165,150 L100,145 Z" fill="#2d3326" stroke="#556644" stroke-width="1" opacity="0.7"/>
+            <text x="135" y="95" fill="#88aa66" font-family="Bebas Neue" font-size="11" text-anchor="middle">ASM</text>
+            <!-- MSM -->
+            <path d="M270,30 L390,28 L390,200 L270,195 Z" fill="#2d3326" stroke="#556644" stroke-width="1" opacity="0.7"/>
+            <text x="340" y="110" fill="#88aa66" font-family="Bebas Neue" font-size="11" text-anchor="middle">MSM</text>
+            <!-- Brachial plexus - cluster of grapes -->
+            <circle cx="200" cy="60" r="9" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.85"/>
+            <circle cx="220" cy="55" r="10" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.85"/>
+            <circle cx="240" cy="60" r="9" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.85"/>
+            <circle cx="195" cy="80" r="10" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.85"/>
+            <circle cx="215" cy="78" r="11" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.85"/>
+            <circle cx="237" cy="80" r="9" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.85"/>
+            <circle cx="205" cy="100" r="10" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.85"/>
+            <circle cx="228" cy="98" r="9" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.85"/>
+            <circle cx="250" cy="95" r="8" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.85"/>
+            <text x="220" y="130" fill="#ffd60a" font-family="Bebas Neue" font-size="11" text-anchor="middle">BP</text>
+            <!-- Subclavian artery -->
+            <circle cx="175" cy="145" r="22" fill="#cc3333" stroke="#ff4444" stroke-width="2" opacity="0.8"/>
+            <text x="175" y="150" fill="white" font-family="Bebas Neue" font-size="13" text-anchor="middle">SA</text>
+            <!-- First rib -->
+            <path d="M140,190 Q220,180 350,195 L355,230 Q220,220 140,230 Z" fill="#8B7355" stroke="#a08060" stroke-width="1.5" opacity="0.6"/>
+            <text x="250" y="215" fill="#cca680" font-family="Bebas Neue" font-size="12" text-anchor="middle">1st RIB</text>
+            <!-- Pleura -->
+            <path d="M120,240 Q200,235 380,245 L385,270 Q200,260 120,265 Z" fill="rgba(255,100,100,0.15)" stroke="rgba(255,100,100,0.3)" stroke-width="1"/>
+            <text x="260" y="260" fill="#ff8888" font-family="JetBrains Mono" font-size="9" text-anchor="middle">PLEURA</text>
+            <!-- Needle trajectory -->
+            <line x1="50" y1="35" x2="200" y2="80" stroke="#00d4ff" stroke-width="1.5" stroke-dasharray="5 3"/>
+            <circle cx="200" cy="80" r="3" fill="#00d4ff"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 9: INFRACLAVICULAR -->
+<section class="slide" id="slide-9" style="background: radial-gradient(ellipse at 60% 40%, rgba(52,211,153,0.06) 0%, transparent 50%), var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">BLOQUEO 03</div>
+    <div class="section-title">BLOQUEO <span class="accent-green">INFRACLAVICULAR</span></div>
+    <div class="grid-2">
+      <div>
+        <p style="color:var(--text-secondary);line-height:1.6;margin-bottom:1.5rem;">Bloqueo a nivel de fascículos (lateral, posterior, medial) alrededor de la arteria axilar, bajo los músculos pectoral mayor y menor.</p>
+        <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-green);letter-spacing:2px;margin-bottom:0.5rem;">INDICACIONES</p>
+        <div style="margin-bottom:1rem;">
+          <span class="tag tag-green">Codo</span>
+          <span class="tag tag-green">Antebrazo</span>
+          <span class="tag tag-green">Muñeca y mano</span>
+        </div>
+        <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-green);letter-spacing:2px;margin-bottom:0.5rem;">ABORDAJES</p>
+        <div class="card" style="margin-bottom:0.75rem;padding:0.8rem 1rem;">
+          <span style="color:var(--accent-cyan);font-weight:700;">Lateral paracoracoideo</span> <span style="color:var(--text-dim);">— clásico, fascículos alrededor de la arteria</span>
+        </div>
+        <div class="card" style="margin-bottom:1rem;padding:0.8rem 1rem;">
+          <span style="color:var(--accent-yellow);font-weight:700;">Costoclavicular</span> <span style="color:var(--text-dim);">— emergente, menor HDP, cordones agrupados</span>
+        </div>
+        <div class="advantage-box">
+          <div class="ab-title">✓ VENTAJAS</div>
+          <div class="ab-text">Ideal para <strong>catéter continuo</strong> (mejor fijación, menor migración). Menor riesgo de bloqueo frénico ↓ comparado con abordajes más proximales.</div>
+        </div>
+        <div class="warning-box" style="margin-top:0.75rem;">
+          <div class="wb-title">⚠ COMPLICACIONES</div>
+          <div class="wb-text">Neumotórax (raro con guía ecográfica) · Punción vascular</div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="text-align:center;padding:1.5rem;">
+          <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-green);letter-spacing:2px;font-size:1rem;margin-bottom:1rem;">SONOANATOMÍA</p>
+          <svg viewBox="0 0 400 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" rx="12" fill="#1a1a2e"/>
+            <!-- Skin -->
+            <path d="M0,20 Q200,18 400,22" fill="none" stroke="#555" stroke-width="2"/>
+            <!-- Pec Major -->
+            <path d="M0,25 L400,25 L400,100 L0,100 Z" fill="#3d2626" stroke="#664444" stroke-width="1" opacity="0.6"/>
+            <text x="200" y="68" fill="#aa8888" font-family="Bebas Neue" font-size="14" text-anchor="middle">PEC MAJOR</text>
+            <!-- Pec Minor -->
+            <path d="M30,105 L370,105 L360,160 L40,160 Z" fill="#3d2d26" stroke="#665544" stroke-width="1" opacity="0.6"/>
+            <text x="200" y="138" fill="#aa9988" font-family="Bebas Neue" font-size="13" text-anchor="middle">PEC MINOR</text>
+            <!-- Axillary artery -->
+            <circle cx="200" cy="210" r="24" fill="#cc3333" stroke="#ff4444" stroke-width="2" opacity="0.8"/>
+            <text x="200" y="216" fill="white" font-family="Bebas Neue" font-size="14" text-anchor="middle">AA</text>
+            <!-- Cords around artery -->
+            <circle cx="160" cy="190" r="14" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.85"/>
+            <text x="160" y="195" fill="#1a1a2e" font-family="Bebas Neue" font-size="10" text-anchor="middle">LC</text>
+            <circle cx="240" cy="195" r="13" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.85"/>
+            <text x="240" y="200" fill="#1a1a2e" font-family="Bebas Neue" font-size="10" text-anchor="middle">MC</text>
+            <circle cx="200" cy="248" r="15" fill="#c9a840" stroke="#ffd60a" stroke-width="1.5" opacity="0.85"/>
+            <text x="200" y="253" fill="#1a1a2e" font-family="Bebas Neue" font-size="10" text-anchor="middle">PC</text>
+            <!-- Axillary vein -->
+            <ellipse cx="290" cy="215" rx="20" ry="16" fill="#3344aa" stroke="#5566dd" stroke-width="1.5" opacity="0.7"/>
+            <text x="290" y="220" fill="#aabbee" font-family="Bebas Neue" font-size="11" text-anchor="middle">AV</text>
+            <!-- Needle -->
+            <line x1="30" y1="30" x2="195" y2="240" stroke="#00d4ff" stroke-width="1.5" stroke-dasharray="5 3"/>
+            <circle cx="195" cy="240" r="3" fill="#00d4ff"/>
+            <!-- Labels -->
+            <text x="130" y="180" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">Lateral</text>
+            <text x="250" y="185" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">Medial</text>
+            <text x="210" y="275" fill="#6ee7b7" font-family="JetBrains Mono" font-size="8">Posterior</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 10: AXILAR -->
+<section class="slide" id="slide-10" style="background: radial-gradient(ellipse at 40% 60%, rgba(251,146,60,0.06) 0%, transparent 50%), var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">BLOQUEO 04</div>
+    <div class="section-title">BLOQUEO <span class="accent-orange">AXILAR</span></div>
+    <div class="grid-2">
+      <div>
+        <p style="color:var(--text-secondary);line-height:1.6;margin-bottom:1.5rem;">Bloqueo de las ramas terminales del plexo a nivel de la axila. Cuatro nervios deben bloquearse individualmente alrededor de la arteria axilar.</p>
+        <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-orange);letter-spacing:2px;margin-bottom:0.5rem;">INDICACIONES</p>
+        <div style="margin-bottom:1rem;">
+          <span class="tag tag-orange">Codo</span>
+          <span class="tag tag-orange">Antebrazo</span>
+          <span class="tag tag-orange">Muñeca y mano</span>
+        </div>
+        <div class="advantage-box" style="border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.08);">
+          <div class="ab-title" style="color:var(--accent-orange);">✓ VENTAJAS</div>
+          <div class="ab-text"><strong>Perfil de seguridad más alto.</strong> Sin riesgo de neumotórax ni bloqueo frénico. Ideal para pacientes con patología pulmonar.</div>
+        </div>
+        <div class="warning-box" style="margin-top:0.75rem;">
+          <div class="wb-title">⚠ DESVENTAJAS</div>
+          <div class="wb-text">
+            Múltiples inyecciones necesarias (4 nervios separados)<br>
+            No apto para catéter continuo<br>
+            Variantes anatómicas frecuentes en posición de nervios
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="text-align:center;padding:1.5rem;">
+          <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-orange);letter-spacing:2px;font-size:1rem;margin-bottom:1rem;">SONOANATOMÍA - CORTE AXILAR</p>
+          <svg viewBox="0 0 400 300" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" rx="12" fill="#1a1a2e"/>
+            <!-- Brachial fascia -->
+            <path d="M0,30 Q200,25 400,30 L400,50 Q200,45 0,50 Z" fill="rgba(150,150,150,0.1)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+            <!-- Biceps -->
+            <path d="M0,55 L120,55 L110,160 L0,165 Z" fill="#3d2626" stroke="#664444" stroke-width="1" opacity="0.7"/>
+            <text x="55" y="115" fill="#aa8888" font-family="Bebas Neue" font-size="12" text-anchor="middle">BÍCEPS</text>
+            <!-- Conjoint tendon -->
+            <path d="M260,150 L400,155 L400,250 L270,240 Z" fill="#4d3d26" stroke="#887744" stroke-width="1" opacity="0.5"/>
+            <text x="340" y="200" fill="#aa9966" font-family="Bebas Neue" font-size="10" text-anchor="middle">CONJ.TEND</text>
+            <!-- Coracobrachialis -->
+            <path d="M0,170 L100,175 L95,270 L0,265 Z" fill="#2d3326" stroke="#556644" stroke-width="1" opacity="0.5"/>
+            <text x="50" y="225" fill="#88aa66" font-family="Bebas Neue" font-size="9" text-anchor="middle">CBM</text>
+            <!-- Axillary artery -->
+            <circle cx="200" cy="145" r="26" fill="#cc3333" stroke="#ff4444" stroke-width="2" opacity="0.8"/>
+            <text x="200" y="151" fill="white" font-family="Bebas Neue" font-size="14" text-anchor="middle">AA</text>
+            <!-- Axillary vein -->
+            <ellipse cx="270" cy="110" rx="22" ry="18" fill="#3344aa" stroke="#5566dd" stroke-width="1.5" opacity="0.7"/>
+            <text x="270" y="115" fill="#aabbee" font-family="Bebas Neue" font-size="11" text-anchor="middle">AV</text>
+            <!-- Nerves -->
+            <!-- Median - anterior/lateral to artery -->
+            <circle cx="175" cy="100" r="10" fill="#a78bfa" stroke="#c4b5fd" stroke-width="1.5" opacity="0.9"/>
+            <text x="175" y="104" fill="#1a1a2e" font-family="Bebas Neue" font-size="9" text-anchor="middle">MN</text>
+            <text x="145" y="90" fill="#c4b5fd" font-family="JetBrains Mono" font-size="7">Mediano</text>
+            <!-- Ulnar - medial to artery -->
+            <circle cx="235" cy="105" r="9" fill="#ff3c78" stroke="#ff6b9d" stroke-width="1.5" opacity="0.9"/>
+            <text x="235" y="109" fill="#1a1a2e" font-family="Bebas Neue" font-size="9" text-anchor="middle">UN</text>
+            <text x="250" y="90" fill="#ff6b9d" font-family="JetBrains Mono" font-size="7">Cubital</text>
+            <!-- Radial - posterior to artery -->
+            <circle cx="210" cy="190" r="10" fill="#34d399" stroke="#6ee7b7" stroke-width="1.5" opacity="0.9"/>
+            <text x="210" y="195" fill="#1a1a2e" font-family="Bebas Neue" font-size="9" text-anchor="middle">RN</text>
+            <text x="230" y="210" fill="#6ee7b7" font-family="JetBrains Mono" font-size="7">Radial</text>
+            <!-- Musculocutaneous - inside coracobrachialis -->
+            <circle cx="115" cy="195" r="9" fill="#ffd60a" stroke="#fde68a" stroke-width="1.5" opacity="0.9"/>
+            <text x="115" y="200" fill="#1a1a2e" font-family="Bebas Neue" font-size="8" text-anchor="middle">MC</text>
+            <text x="80" y="220" fill="#fde68a" font-family="JetBrains Mono" font-size="7">MCutáneo</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 11: BLOQUEOS DISTALES -->
+<section class="slide" id="slide-11" style="background: radial-gradient(ellipse at 50% 80%, rgba(167,139,250,0.06) 0%, transparent 50%), var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">BLOQUEOS PERIFÉRICOS</div>
+    <div class="section-title">BLOQUEOS <span class="accent-purple">DISTALES</span></div>
+    <div class="grid-2">
+      <div>
+        <p style="color:var(--text-secondary);line-height:1.6;margin-bottom:1.5rem;">Bloqueos selectivos de nervios terminales a nivel del brazo, antebrazo o muñeca. Complementan los bloqueos de plexo o proporcionan anestesia selectiva para cirugía de mano.</p>
+        <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-purple);letter-spacing:2px;margin-bottom:0.5rem;">INDICACIONES</p>
+        <div style="margin-bottom:1.5rem;">
+          <span class="tag tag-purple">Refuerzo de bloqueos de plexo</span>
+          <span class="tag tag-purple">Analgesia postoperatoria</span>
+          <span class="tag tag-purple">Cirugía de mano (anestesia)</span>
+        </div>
+        <div class="card" style="margin-bottom:0.75rem;border-left:3px solid #a78bfa;padding:0.8rem 1rem;">
+          <strong style="color:#c4b5fd;">N. Mediano</strong><span style="color:var(--text-dim);font-size:0.85rem;"> — entre FDS y FDP en antebrazo</span>
+        </div>
+        <div class="card" style="margin-bottom:0.75rem;border-left:3px solid #ff3c78;padding:0.8rem 1rem;">
+          <strong style="color:#ff6b9d;">N. Cubital</strong><span style="color:var(--text-dim);font-size:0.85rem;"> — junto a arteria ulnar, bajo FCU</span>
+        </div>
+        <div class="card" style="margin-bottom:0.75rem;border-left:3px solid #34d399;padding:0.8rem 1rem;">
+          <strong style="color:#6ee7b7;">N. Radial</strong><span style="color:var(--text-dim);font-size:0.85rem;"> — entre ECR y pronador teres</span>
+        </div>
+        <div style="margin-top:1rem;padding:0.8rem 1rem;background:var(--bg-card-alt);border-radius:8px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--accent-yellow);">VOLUMEN:</span>
+          <span style="color:var(--text-secondary);font-size:0.9rem;"> 4-5ml por nervio · Si difusión inadecuada: +2-3ml</span><br>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--accent-yellow);">TÉCNICA:</span>
+          <span style="color:var(--text-secondary);font-size:0.9rem;"> En plano o fuera de plano</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;">
+        <!-- PALMAR VIEW -->
+        <div class="card" style="padding:1.5rem;text-align:center;">
+          <p style="font-family:'Bebas Neue',sans-serif;color:var(--accent-purple);letter-spacing:2px;font-size:1rem;margin-bottom:0.75rem;">TERRITORIOS SENSITIVOS — VISTA PALMAR</p>
+          <svg viewBox="0 0 320 420" width="290" xmlns="http://www.w3.org/2000/svg">
+            <!-- Wrist -->
+            <rect x="95" y="340" width="130" height="70" rx="10" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <!-- Forearm hint -->
+            <path d="M95,410 L90,420 M225,410 L230,420" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+            <!-- PALM BASE -->
+            <path d="M95,340 Q90,290 88,250 Q85,220 92,195 L100,180 Q110,165 130,160 L190,160 Q210,165 220,180 L228,195 Q235,220 232,250 Q230,290 225,340 Z" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+
+            <!-- FINGERS with proper anatomy -->
+            <!-- Thumb (D1) -->
+            <path d="M92,195 Q75,175 65,150 Q58,130 62,110 Q66,95 75,88 Q85,82 92,90 Q98,98 100,115 Q102,135 100,160" fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.35)" stroke-width="1.5" stroke-linejoin="round"/>
+            <!-- Index (D2) -->
+            <path d="M118,162 Q115,130 112,105 Q110,80 113,60 Q116,45 125,40 Q134,45 137,60 Q140,80 138,105 Q136,130 134,162" fill="rgba(167,139,250,0.18)" stroke="rgba(167,139,250,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+            <!-- Middle (D3) -->
+            <path d="M142,158 Q140,125 138,95 Q136,65 139,42 Q142,28 152,24 Q162,28 165,42 Q168,65 166,95 Q164,125 162,158" fill="rgba(167,139,250,0.18)" stroke="rgba(167,139,250,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+            <!-- Ring (D4) - split territory -->
+            <path d="M170,160 Q168,128 167,100 Q166,72 168,50 Q171,36 180,32 Q189,36 192,50 Q194,72 193,100 Q192,128 190,160" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" stroke-linejoin="round"/>
+            <!-- D4 mediano half (radial) -->
+            <path d="M170,160 Q168,128 167,100 Q166,72 168,50 Q171,36 180,32 L180,160 Z" fill="rgba(167,139,250,0.15)" stroke="none"/>
+            <!-- D4 cubital half (ulnar) -->
+            <path d="M180,32 Q189,36 192,50 Q194,72 193,100 Q192,128 190,160 L180,160 Z" fill="rgba(255,60,120,0.15)" stroke="none"/>
+            <!-- D4 outline again on top -->
+            <path d="M170,160 Q168,128 167,100 Q166,72 168,50 Q171,36 180,32 Q189,36 192,50 Q194,72 193,100 Q192,128 190,160" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" stroke-linejoin="round"/>
+            <!-- Split line D4 -->
+            <line x1="180" y1="32" x2="180" y2="160" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="3 3"/>
+
+            <!-- Pinky (D5) -->
+            <path d="M198,165 Q197,135 196,110 Q195,88 197,70 Q200,56 208,52 Q216,56 219,70 Q221,88 220,110 Q219,135 218,165" fill="rgba(255,60,120,0.18)" stroke="rgba(255,60,120,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+
+            <!-- PALM TERRITORIES -->
+            <!-- Median territory palm (radial 3.5 digits) -->
+            <path d="M100,180 Q110,175 135,168 L180,168 L180,340 L100,340 Q95,300 92,260 Q88,225 92,200 Z" fill="rgba(167,139,250,0.12)" stroke="none"/>
+            <!-- Ulnar territory palm (ulnar 1.5 digits) -->
+            <path d="M180,168 Q200,170 220,180 L228,195 Q235,220 232,250 Q230,290 225,340 L180,340 Z" fill="rgba(255,60,120,0.12)" stroke="none"/>
+
+            <!-- Finger labels -->
+            <text x="77" y="80" fill="#6ee7b7" font-family="JetBrains Mono" font-size="9" text-anchor="middle">D1</text>
+            <text x="125" y="35" fill="#c4b5fd" font-family="JetBrains Mono" font-size="9" text-anchor="middle">D2</text>
+            <text x="152" y="18" fill="#c4b5fd" font-family="JetBrains Mono" font-size="9" text-anchor="middle">D3</text>
+            <text x="180" y="25" fill="rgba(255,255,255,0.35)" font-family="JetBrains Mono" font-size="8" text-anchor="middle">D4</text>
+            <text x="208" y="45" fill="#ff6b9d" font-family="JetBrains Mono" font-size="9" text-anchor="middle">D5</text>
+
+            <!-- Territory labels on palm -->
+            <text x="140" y="260" fill="#c4b5fd" font-family="Bebas Neue" font-size="15" text-anchor="middle" opacity="0.8">MEDIANO</text>
+            <text x="140" y="276" fill="#c4b5fd" font-family="JetBrains Mono" font-size="8" text-anchor="middle" opacity="0.5">C6-C8</text>
+            <text x="215" y="260" fill="#ff6b9d" font-family="Bebas Neue" font-size="13" text-anchor="middle" opacity="0.8" transform="rotate(90,215,260)">CUBITAL</text>
+
+            <!-- Thenar eminence label -->
+            <text x="108" y="215" fill="rgba(255,255,255,0.2)" font-family="DM Sans" font-size="7" text-anchor="middle">tenar</text>
+            <!-- Hypothenar -->
+            <text x="218" y="225" fill="rgba(255,255,255,0.2)" font-family="DM Sans" font-size="7" text-anchor="middle">hipotenar</text>
+
+            <!-- Wrist level nerves -->
+            <circle cx="135" cy="365" r="6" fill="rgba(167,139,250,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+            <text x="135" y="368" fill="white" font-family="Bebas Neue" font-size="7" text-anchor="middle">M</text>
+            <circle cx="195" cy="365" r="6" fill="rgba(255,60,120,0.4)" stroke="#ff3c78" stroke-width="1.5"/>
+            <text x="195" y="368" fill="white" font-family="Bebas Neue" font-size="7" text-anchor="middle">C</text>
+            <circle cx="110" cy="375" r="5" fill="rgba(52,211,153,0.4)" stroke="#34d399" stroke-width="1.5"/>
+            <text x="110" y="378" fill="white" font-family="Bebas Neue" font-size="6" text-anchor="middle">R</text>
+
+            <!-- Nerve path lines from wrist into hand -->
+            <path d="M135,359 Q135,300 140,240" fill="none" stroke="rgba(167,139,250,0.3)" stroke-width="1" stroke-dasharray="3 2"/>
+            <path d="M195,359 Q200,300 210,240" fill="none" stroke="rgba(255,60,120,0.3)" stroke-width="1" stroke-dasharray="3 2"/>
+
+            <!-- Legend -->
+            <rect x="240" y="90" width="75" height="120" rx="6" fill="rgba(17,24,39,0.95)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <text x="277" y="108" fill="rgba(255,255,255,0.5)" font-family="Bebas Neue" font-size="9" text-anchor="middle" letter-spacing="1">NERVIOS</text>
+            <circle cx="254" cy="125" r="4" fill="#c4b5fd"/><text x="264" y="128" fill="#94a3b8" font-size="7" font-family="DM Sans">Mediano</text>
+            <circle cx="254" cy="145" r="4" fill="#ff6b9d"/><text x="264" y="148" fill="#94a3b8" font-size="7" font-family="DM Sans">Cubital</text>
+            <circle cx="254" cy="165" r="4" fill="#6ee7b7"/><text x="264" y="168" fill="#94a3b8" font-size="7" font-family="DM Sans">Radial</text>
+            <circle cx="254" cy="185" r="4" fill="#fde68a"/><text x="264" y="188" fill="#94a3b8" font-size="7" font-family="DM Sans">MCut</text>
+            <line x1="240" y1="198" x2="315" y2="198" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <text x="277" y="208" fill="rgba(255,255,255,0.3)" font-family="JetBrains Mono" font-size="6" text-anchor="middle">- - D4 split</text>
+
+            <!-- Annotation: D4 split -->
+            <path d="M180,140 L245,140 L245,155" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+            <text x="248" y="140" fill="rgba(255,255,255,0.3)" font-family="JetBrains Mono" font-size="6">½M / ½C</text>
+          </svg>
+        </div>
+        <!-- DORSAL VIEW small -->
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:0.8rem 1.2rem;text-align:center;width:100%;max-width:290px;">
+          <p style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-dim);letter-spacing:1px;margin-bottom:0.3rem;">DORSO DE LA MANO</p>
+          <p style="font-size:0.8rem;color:var(--text-secondary);line-height:1.4;">
+            <span style="color:#6ee7b7;">■ Radial</span> → D1-D2 y mitad radial de D3<br>
+            <span style="color:#ff6b9d;">■ Cubital</span> → D5, D4 y mitad cubital de D3
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 12: SELECCIÓN DEL BLOQUEO -->
+<section class="slide" id="slide-12" style="background: var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">DECISIÓN CLÍNICA</div>
+    <div class="section-title">SELECCIÓN DEL <span class="accent-cyan">BLOQUEO</span></div>
+    <div style="overflow-x:auto;">
+      <table class="block-table">
+        <thead>
+          <tr>
+            <th>CIRUGÍA</th>
+            <th>1ª OPCIÓN</th>
+            <th>ALTERNATIVA</th>
+            <th>NOTAS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="surgery-col">🦴 Hombro</td>
+            <td><span class="tag tag-pink">Interescalénico</span></td>
+            <td><span class="tag tag-green">Costoclavicular</span> <span class="tag tag-yellow">Tronco sup.</span></td>
+            <td style="font-size:0.8rem;">Diaphragm-sparing en EPOC/obesidad</td>
+          </tr>
+          <tr>
+            <td class="surgery-col">🔗 Clavícula</td>
+            <td><span class="tag tag-pink">Interescalénico</span></td>
+            <td><span class="tag tag-cyan">Supraclavicular</span></td>
+            <td style="font-size:0.8rem;">+ plexo cervical superficial</td>
+          </tr>
+          <tr>
+            <td class="surgery-col">💪 Brazo</td>
+            <td><span class="tag tag-cyan">Supraclavicular</span></td>
+            <td><span class="tag tag-pink">Interescalénico</span></td>
+            <td style="font-size:0.8rem;">ISB si brazo proximal</td>
+          </tr>
+          <tr>
+            <td class="surgery-col">🔧 Codo</td>
+            <td><span class="tag tag-cyan">Supraclavicular</span></td>
+            <td><span class="tag tag-green">Infraclavicular</span></td>
+            <td style="font-size:0.8rem;">Catéter: preferir infraclavicular</td>
+          </tr>
+          <tr>
+            <td class="surgery-col">🖐 Antebrazo/Muñeca</td>
+            <td><span class="tag tag-green">Infraclavicular</span></td>
+            <td><span class="tag tag-orange">Axilar</span> <span class="tag tag-purple">Distales</span></td>
+            <td style="font-size:0.8rem;">Axilar = menor riesgo</td>
+          </tr>
+          <tr>
+            <td class="surgery-col">✋ Mano</td>
+            <td><span class="tag tag-orange">Axilar</span></td>
+            <td><span class="tag tag-purple">Distales selectivos</span></td>
+            <td style="font-size:0.8rem;">Distales para 1-2 dedos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:1.5rem;padding:1rem;background:var(--bg-card);border-radius:8px;border:1px solid var(--border);">
+      <span style="font-family:'Bebas Neue',sans-serif;color:var(--accent-yellow);letter-spacing:1px;">💡 TIP CLÍNICO:</span>
+      <span style="color:var(--text-secondary);font-size:0.9rem;"> Considerar <strong style="color:var(--text-primary);">catéter continuo</strong> para dolor postoperatorio severo esperado (artroplastia de hombro, fracturas complejas de húmero). Preferir abordaje <strong style="color:var(--text-primary);">infraclavicular</strong> para catéteres por mejor estabilidad.</span>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 13: BIBLIOGRAFÍA -->
+<section class="slide" id="slide-13" style="background: radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.04) 0%, transparent 50%), var(--bg-dark);">
+  <div class="content-max animate-in">
+    <div class="section-label">LECTURAS RECOMENDADAS</div>
+    <div class="section-title">BIBLIOGRAFÍA <span class="accent-cyan">2024-2026</span></div>
+    <div class="bib-item">
+      <div class="bib-num">1</div>
+      <div class="bib-text"><strong>Hadzic A.</strong> <em>NYSORA Nerve Block Manual.</em> 1st Ed, 2023. Guía práctica definitiva para bloqueos ecoguiados.</div>
+    </div>
+    <div class="bib-item">
+      <div class="bib-num">2</div>
+      <div class="bib-text"><strong>Hadzic A et al.</strong> <em>Regional Anesthesia Updates 2025.</em> NYSORA. Resúmenes actualizados de la evidencia más reciente.</div>
+    </div>
+    <div class="bib-item">
+      <div class="bib-num">3</div>
+      <div class="bib-text"><strong>Pester JM, Hendrix JM, Varacallo MA.</strong> Brachial Plexus Block Techniques. <em>StatPearls</em>, 2025. [Acceso gratuito en PubMed]</div>
+    </div>
+    <div class="bib-item">
+      <div class="bib-num">4</div>
+      <div class="bib-text"><strong>Oliver-Fornies P et al.</strong> Hemidiaphragmatic paralysis after US-guided brachial plexus blocks: systematic review and meta-analysis. <em>J Clin Anesth</em>, 2025.</div>
+    </div>
+    <div class="bib-item">
+      <div class="bib-num">5</div>
+      <div class="bib-text"><strong>Costoclavicular block for shoulder surgery:</strong> Narrative review. <em>Korean J Anesthesiol</em>, 2025. Evidencia sobre CCB como alternativa diaphragm-sparing.</div>
+    </div>
+    <div class="bib-item">
+      <div class="bib-num">6</div>
+      <div class="bib-text"><strong>NYSORA.com</strong> — Atlas libre de sonoanatomía con ilustraciones, animaciones y videos de técnica. Recurso esencial para residentes.</div>
+    </div>
+    <div style="margin-top:2rem;text-align:center;">
+      <div style="display:inline-block;padding:0.8rem 2rem;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:8px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent-cyan);">🌐 nysora.com · pubmed.ncbi.nlm.nih.gov · statpearls.com</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 14: END -->
+<section class="slide slide-end" id="slide-14">
+  <div class="content-max" style="display:flex;flex-direction:column;align-items:center;">
+    <div class="cover-badge" style="opacity:1;animation:none;">BLOQUEOS DE MIEMBRO SUPERIOR · 2026</div>
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,6vw,5rem);letter-spacing:3px;margin-bottom:1rem;">
+      ¿<span style="color:var(--accent-cyan);">PREGUNTAS</span>?
+    </h2>
+    <div class="cover-line" style="opacity:1;animation:none;"></div>
+    <div style="max-width:600px;margin:1.5rem auto;padding:1.2rem 2rem;border-left:3px solid var(--accent-cyan);background:rgba(0,212,255,0.04);">
+      <p style="font-style:italic;color:var(--text-secondary);font-size:1.05rem;line-height:1.6;">"La anatomía nos da el mapa, la técnica nos da el camino, pero solo la práctica deliberada nos lleva al destino."</p>
+    </div>
+    <div style="margin-top:1.5rem;text-align:center;">
+      <p style="font-family:'DM Sans',sans-serif;font-size:1.1rem;color:var(--text-primary);font-weight:500;">Dr. Emiliano Landín</p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-top:0.3rem;">Anestesiólogo · Hospital Maciel</p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent-cyan);margin-top:0.75rem;">emilandin@gmail.com</p>
+    </div>
+  </div>
+</section>
+
+<!-- NAV BUTTONS -->
+<div class="key-hint">
+  <button class="key-btn" onclick="navigate(-1)">↑</button>
+  <button class="key-btn" onclick="navigate(1)">↓</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const totalSlides = slides.length;
+let currentSlide = 0;
+
+// Build nav dots
+const navDotsEl = document.getElementById('navDots');
+for (let i = 0; i < totalSlides; i++) {
+  const dot = document.createElement('button');
+  dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+  dot.onclick = () => goToSlide(i);
+  navDotsEl.appendChild(dot);
+}
+
+function updateNav() {
+  document.querySelectorAll('.nav-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === currentSlide);
+  });
+  document.getElementById('navCounter').textContent =
+    String(currentSlide + 1).padStart(2, '0') + ' / ' + String(totalSlides).padStart(2, '0');
+  document.getElementById('progressBar').style.width =
+    ((currentSlide + 1) / totalSlides * 100) + '%';
+}
+
+function goToSlide(n) {
+  currentSlide = n;
+  slides[n].scrollIntoView({ behavior: 'smooth' });
+  updateNav();
+}
+
+function navigate(dir) {
+  const next = currentSlide + dir;
+  if (next >= 0 && next < totalSlides) goToSlide(next);
+}
+
+// Keyboard nav
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); navigate(-1); }
+});
+
+// Intersection observer for scroll tracking and animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = Array.from(slides).indexOf(entry.target);
+      currentSlide = idx;
+      updateNav();
+      // Trigger animations
+      entry.target.querySelectorAll('.animate-in').forEach(el => {
+        el.classList.add('visible');
+      });
+    }
+  });
+}, { threshold: 0.5 });
+
+slides.forEach(s => observer.observe(s));
+
+updateNav();
+</script>
+</body>
+</html>
